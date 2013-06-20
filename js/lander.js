@@ -45,6 +45,7 @@ Game.init = function () {
 	this.scene = new Physijs.Scene({ fixedTimeStep: 1 / 120 });
     this.scene.setGravity(new THREE.Vector3(0, -30, 0));
 
+
 	this.camera.position.y = 0;
 	this.camera.position.z = 300;
 	// Game.camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -80,6 +81,7 @@ Game.init_scene = function() {
         { restitution: .2, friction: .8 }
     );
 
+
 	lander.mesh.castShadow = true;
 	lander.rotation = 0;
 	lander.elevation = 0;
@@ -87,7 +89,7 @@ Game.init_scene = function() {
 	Game.scene.add(lander.mesh);
 
 	//Ground
-	ground.geometry = new THREE.PlaneGeometry(200, 200);
+	ground.geometry = new THREE.CubeGeometry(200, 80, 4);
 
 	ground.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2));
 
@@ -103,18 +105,10 @@ Game.init_scene = function() {
         0, //mass
         { restitution: .2, friction: .8 }
     )
-    
-	// ground.mesh.castShadow = true;
+
 	ground.mesh.receiveShadow = true;
 
-
 	Game.scene.add(ground.mesh);
-
-	// light = new THREE.PointLight(0xFFFFFF);
-
-	// light.position.x = 10;
-	// light.position.y = 50;
-	// light.position.z = 130;
 
 	light = new THREE.SpotLight( 0xFFFFFF );
 	light.position.set( 0, 200, 400 );
@@ -123,7 +117,6 @@ Game.init_scene = function() {
 	light.shadowDarkness = .7;
 	light.shadowCameraVisible = true;
 	Game.scene.add(light);
-
 };
 
 Game.render = function() {
