@@ -166,4 +166,4 @@ Game.animate = function() {
 }
 
 
-window.addEventListener("load", Game.init);
+window.addEventListener("load", Game.init.bind(Game));
