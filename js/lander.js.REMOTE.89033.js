@@ -105,14 +105,20 @@ Game.init_scene = function() {
 	ground.mesh = new Physijs.BoxMesh(
         ground.geometry,
         ground.material,
-        0,
-        { restitution: .2, friction: .8 }
+        0
     );
     
 	// ground.mesh.castShadow = true;
 	ground.mesh.receiveShadow = true;
 
+
 	Game.scene.add(ground.mesh);
+
+	// light = new THREE.PointLight(0xFFFFFF);
+
+	// light.position.x = 10;
+	// light.position.y = 50;
+	// light.position.z = 130;
 
 	light = new THREE.SpotLight( 0xFFFFFF );
 	light.position.set( 0, 200, 400 );
@@ -121,6 +127,7 @@ Game.init_scene = function() {
 	light.shadowDarkness = .7;
 	light.shadowCameraVisible = true;
 	Game.scene.add(light);
+
 };
 
 Game.render = function() {
