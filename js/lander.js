@@ -43,7 +43,7 @@ Game.init = function () {
                                 NEAR,
                                 FAR  );
 	this.scene = new Physijs.Scene({ reportsize: 50, fixedTimeStep: 1 / 60 });
-    this.scene.setGravity(new THREE.Vector3(0, -9.8, 0));
+    this.scene.setGravity(new THREE.Vector3(0, -1.622, 0));
 
 	this.camera.position.y = 20;
 	this.camera.position.z = 100;
@@ -83,11 +83,9 @@ Game.init_scene = function() {
 	lander.mesh.castShadow = true;
 
 	lander.mesh.position.set(0, 20, 0);
-	lander.mesh.rotation.set(0, 0, Math.PI/4);
+	// lander.mesh.rotation.set(0, 0, Math.PI/4);
 
-	lander.mesh.addEventListener("collision", function(other_object, relative_velocity, relative_rotation) {
-		console.log(relative_velocity);
-	});
+	lander.mesh.addEventListener("collision", Game.handle_landing.bind(Game));
 
 	Game.scene.add(lander.mesh);
 
@@ -123,6 +121,13 @@ Game.init_scene = function() {
 	Game.scene.add(light);
 };
 
+Game.handle_landing = function(other_object, linear_velocity, angular_velocity) {
+	var impact_force = linear_velocity.length();
+	if (impact_force > 15) {
+		console.log("YOU ARE DEAD");
+	}
+};
+
 Game.render = function() {
 	Game.handle_keys();
 	Game.renderer.render(Game.scene, Game.camera);
@@ -144,20 +149,30 @@ Game.handle_keys = function() {
 
 Game.apply_thrust = function(lander) {
 	var strength = 10;
-	var theta = lander.mesh.rotation.z + Math.PI/2;
-	var vector = new THREE.Vector3(Math.cos(theta), Math.sin(theta), 0);
+	var rotation_matrix = new THREE.Matrix4();
+	rotation_matrix.extractRotation(lander.mesh.matrix);
 
-	Game.items.lander.mesh.applyCentralForce(vector*10);
+	var force_vector = new THREE.Vector3(0, 15, 0);
+	var final_force_vector = rotation_matrix.multiplyVector3(force_vector);
+	Game.items.lander.mesh.applyCentralForce(final_force_vector);
 
 
 }
 
 Game.rotate_right = function(lander) {
-	lander.mesh.rotation.z -= 4*Math.PI/180.0;
+	var old_vector = Game.items.lander.mesh.getAngularVelocity();
+	var rot_vector = new THREE.Vector3(0, 0, -.05);
+	var new_vector = new THREE.Vector3();
+	new_vector.addVectors(old_vector, rot_vector);
+	Game.items.lander.mesh.setAngularVelocity(new_vector);
 }
 
 Game.rotate_left = function(lander) {
-	lander.mesh.rotation.z += 4*Math.PI/180.0;
+	var old_vector = Game.items.lander.mesh.getAngularVelocity();
+	var rot_vector = new THREE.Vector3(0, 0, .05);
+	var new_vector = new THREE.Vector3();
+	new_vector.addVectors(old_vector, rot_vector);
+	Game.items.lander.mesh.setAngularVelocity(new_vector);
 }
 
 Game.frameTime = 0; //ms
