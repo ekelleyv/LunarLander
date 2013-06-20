@@ -43,7 +43,7 @@ Game.init = function () {
                                 NEAR,
                                 FAR  );
 	this.scene = new Physijs.Scene({ reportsize: 50, fixedTimeStep: 1 / 60 });
-    this.scene.setGravity(new THREE.Vector3(0, -10, 0));
+    this.scene.setGravity(new THREE.Vector3(0, -9.8, 0));
 
 	this.camera.position.y = 20;
 	this.camera.position.z = 100;
@@ -150,10 +150,13 @@ Game.handle_keys = function() {
 };
 
 Game.apply_thrust = function(lander) {
-	var vector = new THREE.Vector2()
+	var strength = 10;
 	var theta = lander.mesh.rotation.z + Math.PI/2;
-	lander.mesh.position.x += 1*Math.cos(theta);
-	lander.mesh.position.y += 1*Math.sin(theta);
+	var vector = new THREE.Vector3(Math.cos(theta), Math.sin(theta), 0);
+
+	Game.items.lander.mesh.applyCentralForce(vector*10);
+
+
 }
 
 Game.rotate_right = function(lander) {
