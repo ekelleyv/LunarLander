@@ -169,6 +169,7 @@ Game.animate = function() {
 	Game._lastFrameTime = time;
 	Game.cumulatedFrameTime += Game.frameTime;
 
+    Game.scene.simulate();
 	Game.render();
 
 	window.requestAnimationFrame(Game.animate);
