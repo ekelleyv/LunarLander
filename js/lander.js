@@ -50,6 +50,13 @@ Game.init = function () {
 	this.camera.position.z = 300;
 	// Game.camera.lookAt(new THREE.Vector3(0, 0, 0));
 	this.scene.add(Game.camera);
+    this.scene.addEventListener(
+        'update',
+        function() {
+            Game.scene.simulate( undefined, 1 );
+            //physics_stats.update();
+        }
+    );
 
 	this.renderer.setSize(WIDTH, HEIGHT);
 
@@ -81,10 +88,18 @@ Game.init_scene = function() {
         { restitution: .2, friction: .8 }
     );
 
+    lander.mesh.position.set(0, 0, 0);
+
 
 	lander.mesh.castShadow = true;
 	lander.rotation = 0;
 	lander.elevation = 0;
+    lander.mesh.addEventListener('collision', function(){
+        console.log('collision!');
+    });
+    lander.mesh.addEventListener('ready', function(){
+        console.log('ready');
+    });
 
 	Game.scene.add(lander.mesh);
 
@@ -96,7 +111,9 @@ Game.init_scene = function() {
 	ground.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, -100, 0));
 
 	ground.material = Physijs.createMaterial(
-        new THREE.MeshLambertMaterial({ color: 0xEEEEEE })
+        new THREE.MeshLambertMaterial({ color: 0xEEEEEE }),
+        .2,
+        .4
     );
 
 	ground.mesh = new Physijs.BoxMesh(
