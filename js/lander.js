@@ -42,7 +42,8 @@ Game.init = function () {
                                 ASPECT,
                                 NEAR,
                                 FAR  );
-	this.scene = new Physijs.Scene();
+	this.scene = new Physijs.Scene({ fixedTimeStep: 1 / 120 });
+    this.scene.setGravity(new THREE.Vector3(0, -30, 0));
 
 	this.camera.position.y = 0;
 	this.camera.position.z = 300;
@@ -64,20 +65,24 @@ Game.init_scene = function() {
 	var light = Game.items.light;
 
 	//Lander
-	lander.material =
-	  new THREE.MeshLambertMaterial(
-	    {
-	      color: 0xCC0000
-    	});
+	lander.material = Physijs.createMaterial(
+	  new THREE.MeshLambertMaterial({ color: 0xCC0000 }),
+      .8, // high friction
+      .4 // low restitution
+    )
 
 	lander.geometry= new THREE.CubeGeometry(10, 20, 10);
 
+	lander.mesh = new Physijs.BoxMesh(
+        lander.geometry,
+        lander.material,
+        1, // mass
+        { restitution: .2, friction: .8 }
+    );
+
+	lander.mesh.castShadow = true;
 	lander.rotation = 0;
 	lander.elevation = 0;
-
-	lander.mesh = new THREE.Mesh(lander.geometry, lander.material);
-	lander.mesh.castShadow = true;
-	// lander.mesh.receiveShadow = true;
 
 	Game.scene.add(lander.mesh);
 
@@ -88,13 +93,17 @@ Game.init_scene = function() {
 
 	ground.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, -100, 0));
 
-	ground.material = new THREE.MeshLambertMaterial(
-			{
-				color: 0xEEEEEE
-			}
-		);
+	ground.material = Physijs.createMaterial(
+        new THREE.MeshLambertMaterial({ color: 0xEEEEEE })
+    );
 
-	ground.mesh = new THREE.Mesh(ground.geometry, ground.material);
+	ground.mesh = new Physijs.BoxMesh(
+        ground.geometry,
+        ground.material,
+        0, //mass
+        { restitution: .2, friction: .8 }
+    )
+    
 	// ground.mesh.castShadow = true;
 	ground.mesh.receiveShadow = true;
 
@@ -166,4 +175,4 @@ Game.animate = function() {
 }
 
 
-window.addEventListener("load", Game.init);
+window.addEventListener("load", Game.init.bind(Game));
