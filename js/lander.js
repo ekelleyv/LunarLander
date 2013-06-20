@@ -31,27 +31,30 @@ Game.init = function () {
 	    NEAR = 0.1,
 	    FAR = 10000;
 
-	Game.renderer = new THREE.WebGLRenderer({
-		antialias: true
+	this.renderer = new THREE.WebGLRenderer({
+		antialias: true,
 	});
 
-	Game.camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
+	this.renderer.shadowMapEnabled = true;
+	this.renderer.shadowMapSoft = true;
+
+	this.camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 ASPECT,
                                 NEAR,
                                 FAR  );
-	Game.scene = new THREE.Scene();
+	this.scene = new Physijs.Scene();
 
-	Game.camera.position.y = 50;
-	Game.camera.position.z = 300;
-	Game.camera.lookAt(new THREE.Vector3(0, 0, 0));
-	Game.scene.add(Game.camera);
+	this.camera.position.y = 0;
+	this.camera.position.z = 300;
+	// Game.camera.lookAt(new THREE.Vector3(0, 0, 0));
+	this.scene.add(Game.camera);
 
-	Game.renderer.setSize(WIDTH, HEIGHT);
+	this.renderer.setSize(WIDTH, HEIGHT);
 
-	document.body.appendChild(Game.renderer.domElement);
+	document.body.appendChild(this.renderer.domElement);
 
-	Game.init_scene();
-	Game.animate();
+	this.init_scene();
+	this.animate();
 };
 
 Game.init_scene = function() {
@@ -73,17 +76,17 @@ Game.init_scene = function() {
 	lander.elevation = 0;
 
 	lander.mesh = new THREE.Mesh(lander.geometry, lander.material);
-	lander.castShadow = true;
-	lander.receiveShadow = true;
+	lander.mesh.castShadow = true;
+	// lander.mesh.receiveShadow = true;
 
 	Game.scene.add(lander.mesh);
 
 	//Ground
-	ground.geometry = new THREE.PlaneGeometry(200, 500);
+	ground.geometry = new THREE.PlaneGeometry(200, 200);
 
 	ground.geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2));
 
-	ground.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, -100, 100));
+	ground.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, -100, 0));
 
 	ground.material = new THREE.MeshLambertMaterial(
 			{
@@ -92,8 +95,8 @@ Game.init_scene = function() {
 		);
 
 	ground.mesh = new THREE.Mesh(ground.geometry, ground.material);
-	ground.castShadow = true;
-	ground.receiveShadow = true;
+	// ground.mesh.castShadow = true;
+	ground.mesh.receiveShadow = true;
 
 
 	Game.scene.add(ground.mesh);
@@ -104,19 +107,12 @@ Game.init_scene = function() {
 	// light.position.y = 50;
 	// light.position.z = 130;
 
-	light = new THREE.DirectionalLight( 0xFFFFFF );
-	light.position.set( 20, 40, 30 );
+	light = new THREE.SpotLight( 0xFFFFFF );
+	light.position.set( 0, 200, 400 );
 	light.target.position.copy( this.scene.position );
 	light.castShadow = true;
-	light.shadowCameraLeft = -60;
-	light.shadowCameraTop = -60;
-	light.shadowCameraRight = 60;
-	light.shadowCameraBottom = 60;
-	light.shadowCameraNear = 20;
-	light.shadowCameraFar = 200;
-	light.shadowBias = -.0001
-	light.shadowMapWidth = light.shadowMapHeight = 2048;
 	light.shadowDarkness = .7;
+	light.shadowCameraVisible = true;
 	Game.scene.add(light);
 
 };
