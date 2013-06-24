@@ -21,7 +21,7 @@ Game.keyboard = new THREEx.KeyboardState();
 Game.init = function () {
 	// set the scene size
 	var WIDTH = window.innerWidth,
-	    HEIGHT = window.innerWidth;
+	    HEIGHT = window.innerHeight;
 	// var WIDTH = 640,
 	// 	HEIGHT =480;
 
@@ -30,6 +30,7 @@ Game.init = function () {
 	    ASPECT = WIDTH / HEIGHT,
 	    NEAR = 0.1,
 	    FAR = 10000;
+
 
 	this.renderer = new THREE.WebGLRenderer({
 		antialias: true,
@@ -54,8 +55,22 @@ Game.init = function () {
 
 	document.body.appendChild(this.renderer.domElement);
 
-	this.init_scene();
-	this.animate();
+	var loader = new THREE.ColladaLoader();
+
+	// loader.load( '../lander_small.dae', function ( collada ) {
+	// 	var lander = Game.items.lander;
+
+	// 	lander.dae = collada.scene;
+	// 	lander.dae.scale.x = lander.dae.scale.y = lander.dae.scale.z = 0.002;
+	// 	lander.dae.updateMatrix();
+
+	// 	Game.init_scene();
+	// 	Game.animate();
+
+	// } );
+
+	Game.init_scene();
+	Game.animate();
 };
 
 Game.init_scene = function() {
@@ -64,6 +79,12 @@ Game.init_scene = function() {
 	var ground = Game.items.ground;
 	var light = Game.items.light;
 
+	lander.mass = 14696; //kg
+	lander.torque = 1100; //N*m
+	lander.thrust_force = 44400; //N
+	lander.moment_inertia = 36740; //kg*m^2
+	lander.angular_acceleration = lander.torque/lander.moment_inertia;
+
 	//Lander
 	lander.material = Physijs.createMaterial(
 	  new THREE.MeshLambertMaterial({ color: 0xCC0000 }),
@@ -71,14 +92,15 @@ Game.init_scene = function() {
       .4 // low restitution
     )
 
-	lander.geometry= new THREE.CubeGeometry(3, 4, 3);
+	lander.geometry= new THREE.CubeGeometry(4.3, 4.1, 5.5);
 
 	lander.mesh = new Physijs.BoxMesh(
         lander.geometry,
         lander.material,
-        1, // mass
+        14696, // mass
         { restitution: .2, friction: .8 }
     );
+	// lander.mesh = lander.dae;
 
 	lander.mesh.castShadow = true;
 
@@ -117,21 +139,32 @@ Game.init_scene = function() {
 	light.target.position.copy( this.scene.position );
 	light.castShadow = true;
 	light.shadowDarkness = .7;
-	light.shadowCameraVisible = true;
+	// light.shadowCameraVisible = true;
 	Game.scene.add(light);
 };
 
 Game.handle_landing = function(other_object, linear_velocity, angular_velocity) {
-	var impact_force = linear_velocity.length();
-	if (impact_force > 15) {
+	var impact_velocity= linear_velocity.length();
+	console.log(impact_velocity)
+	if (impact_velocity > 2) {
 		console.log("YOU ARE DEAD");
 	}
 };
 
 Game.render = function() {
 	Game.handle_keys();
+	Game.update_camera();
 	Game.renderer.render(Game.scene, Game.camera);
 };
+
+Game.update_camera = function() {
+	// Game.camera.position.x
+	var position = Game.items.lander.mesh.position;
+	Game.camera.position.x = position.x;
+
+	var height = position.y;
+	Game.camera.position.z = Math.max(2*position.y + 50, 50);
+}
 
 Game.handle_keys = function() {
 	var lander = this.items.lander;
@@ -148,11 +181,11 @@ Game.handle_keys = function() {
 };
 
 Game.apply_thrust = function(lander) {
-	var strength = 10;
+	var strength = 44400;
 	var rotation_matrix = new THREE.Matrix4();
 	rotation_matrix.extractRotation(lander.mesh.matrix);
 
-	var force_vector = new THREE.Vector3(0, 15, 0);
+	var force_vector = new THREE.Vector3(0, strength, 0);
 	var final_force_vector = rotation_matrix.multiplyVector3(force_vector);
 	Game.items.lander.mesh.applyCentralForce(final_force_vector);
 
