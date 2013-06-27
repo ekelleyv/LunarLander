@@ -8,7 +8,7 @@ Ground.prototype.initMaterial = function() {
 	var material = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'images/dirt.png' ) }),
 		.8, // high friction
-		.4 // low restitution
+		.3 // low restitution
 	);
 
 	material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
@@ -99,7 +99,7 @@ Ground.prototype.initGeometry = function() {
 				height = 0;
 			}
 			else if (depth >= 150) {
-				height = depth - 150 + Math.random()-.5*100;
+				height = depth - 150 + (Math.random()-.5)*10;
 			}
 			// var height = depth;
 			var noise = (past_start && !past_end) ? 0 : (Math.random()-.5)*6;

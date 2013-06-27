@@ -5,6 +5,8 @@ Physijs.scripts.ammo = 'game/js/ammo.js';
 
 var Game = function() {};
 
+var threexSparks;
+
 Game.prototype.init = function() {
 	this.renderer = this.initRenderer();
 	this.renderer.setClearColorHex( 0x111111, 1 );
@@ -27,12 +29,15 @@ Game.prototype.init = function() {
 	this.lander = new Lander();
 	this.scene.add(this.lander.mesh);
 	this.scene.add(this.lander.sparks);
+	this.scene.add(this.lander.thrust_light);
+
+
 
 	this.ground = new Ground();
 	this.scene.add(this.ground.mesh);
 
-	this.stars = this.initStars();
-	this.scene.add(this.stars);
+	// this.stars = this.initStars();
+	// this.scene.add(this.stars);
 
 	this.keyboard = new THREEx.KeyboardState();
 
@@ -74,6 +79,8 @@ Game.prototype.initCamera = function() {
                                 NEAR,
                                 FAR  );
 	camera.position.set( 0, 50, this.radius);
+	// camera.position.set(0, 0, 100);
+	camera.lookAt(new THREE.Vector3(0, 0, 0) );
 	return camera;
 }
 
@@ -100,6 +107,7 @@ Game.prototype.initLights = function() {
 	s_light.position.set( 0, 400, 200 );
 	s_light.target.position.copy( this.scene.position );
 	s_light.castShadow = true;
+	s_light.intensity = .7;
 	s_light.shadowDarkness = .7;
 
 	lights.push(s_light);
@@ -141,6 +149,7 @@ Game.prototype.initStars = function() {
 
 Game.prototype.render = function() {
 	this.scene.simulate();
+	this.lander.update_sparks();
 	this.handle_keys();
 	this.update_camera();
 	requestAnimationFrame( this.render.bind(this) );
@@ -148,7 +157,9 @@ Game.prototype.render = function() {
 };
 
 Game.prototype.handle_keys = function() {
+	this.lander.thrust_on = false;
 	if (this.keyboard.pressed("w")) {
+		this.lander.thrust_on = true;
 		this.lander.apply_thrust();
 		
 	}

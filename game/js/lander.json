@@ -1,0 +1,113 @@
+{
+	"metadata": {
+		"version": 4,
+		"type": "object",
+		"generator": "ObjectExporter"
+	},
+	"geometries": [
+		{
+			"type": "CylinderGeometry",
+			"radiusTop": 20,
+			"radiusBottom": 20,
+			"height": 100,
+			"radiusSegments": 8,
+			"heightSegments": 10
+		},
+		{
+			"type": "IcosahedronGeometry",
+			"radius": 75,
+			"detail": 1
+		},
+		{
+			"type": "CylinderGeometry",
+			"radiusTop": 0.04,
+			"radiusBottom": 15.52,
+			"height": 128.82,
+			"radiusSegments": 8,
+			"heightSegments": 1
+		}],
+	"materials": [
+		{
+			"name": "Surface Material",
+			"type": "MeshLambertMaterial",
+			"color": 6710886,
+			"ambient": 16777215,
+			"emissive": 7763574,
+			"opacity": 1,
+			"transparent": false,
+			"wireframe": false
+		},
+		{
+			"type": "MeshPhongMaterial",
+			"color": 16777215,
+			"ambient": 16777215,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30,
+			"opacity": 1,
+			"transparent": false,
+			"wireframe": false
+		},
+		{
+			"type": "MeshPhongMaterial",
+			"color": 16777215,
+			"ambient": 16777215,
+			"emissive": 0,
+			"specular": 1118481,
+			"shininess": 30,
+			"opacity": 1,
+			"transparent": false,
+			"wireframe": false
+		}],
+	"object": {
+		"type": "Scene",
+		"children": [
+			{
+				"name": "Base",
+				"type": "Mesh",
+				"position": [0,0,0],
+				"rotation": [0,0,0],
+				"scale": [1,0.2,1],
+				"geometry": 0,
+				"material": 0,
+				"children": [
+					{
+						"name": "Top",
+						"type": "Mesh",
+						"position": [0,69.16,0],
+						"rotation": [0,0,0],
+						"scale": [0.24,1.14,0.24],
+						"geometry": 1,
+						"material": 1
+					},
+					{
+						"name": "Cone",
+						"type": "Mesh",
+						"position": [0,-25.9,0],
+						"rotation": [0,0,0],
+						"scale": [0.6,0.78,0.66],
+						"geometry": 2,
+						"material": 2
+					}]
+			},
+			{
+				"name": "AmbientLight 13",
+				"type": "AmbientLight",
+				"color": 2236962
+			},
+			{
+				"name": "DirectionalLight 14",
+				"type": "DirectionalLight",
+				"color": 16777215,
+				"intensity": 1,
+				"position": [200,200,200]
+			},
+			{
+				"name": "DirectionalLight 14 Target",
+				"type": "Object3D",
+				"position": [0,0,0],
+				"rotation": [0,0,0],
+				"scale": [1,1,1]
+			}]
+	}
+}
