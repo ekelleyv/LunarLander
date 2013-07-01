@@ -36,11 +36,11 @@ Game.prototype.init = function() {
 	this.ground = new Ground(0, 600, 600, 100, 100);
 	this.scene.add(this.ground.mesh);
 
-	// this.ground2 = new Ground(600, 600, 600, 100, 100);
-	// this.scene.add(this.ground2.mesh);
+	this.ground2 = new Ground(600, 600, 600, 100, 100);
+	this.scene.add(this.ground2.mesh);
 
-	// this.ground3 = new Ground(-600, 600, 600, 100, 100);
-	// this.scene.add(this.ground3.mesh);
+	this.ground3 = new Ground(-600, 600, 600, 100, 100);
+	this.scene.add(this.ground3.mesh);
 
 	// this.stars = this.initStars();
 	// this.scene.add(this.stars);
