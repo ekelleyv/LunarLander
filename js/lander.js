@@ -100,7 +100,7 @@ Lander.prototype.init_mesh = function() {
 	lander.receiveShadow = true;
 
 	lander.position.z = 30;
-	lander.position.y = 200;
+	lander.position.y = 250;
 
 	
 

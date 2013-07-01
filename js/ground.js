@@ -16,7 +16,7 @@ var Ground = function(offset, width, depth, start_height, end_height) {
 	this.num_spots = 10;
 	this.min_spot_width = 10;
 	this.max_spot_width = 30;
-	this.inter_spot_noise = 3;
+	this.inter_spot_noise = 6;
 	// this.inter_spot_noise = 0;
 
 
