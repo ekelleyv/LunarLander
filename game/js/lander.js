@@ -77,40 +77,125 @@ Lander.prototype.initMesh = function() {
 	// mesh.receiveShadow = true;
 
 	// return mesh;
-	var material = Physijs.createMaterial(
-		new THREE.MeshLambertMaterial(),
+	var top_material = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({ color: new THREE.Color(0xFFFFFF)}),
 		.8, // high friction
 		.4 // low restitution
 	);
-	material.color.setRGB( .8, .8, .8);
-	var flat_material = material;
-	flat_material.shading = THREE.FlatShading;
+
+	top_material.shading = THREE.FlatShading;
+	// material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+	// material.map.repeat.set( .05, .05 );
+
+	var bottom_material = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({ color: new THREE.Color(0xCF8100)}),
+		.8, // high friction
+		.4 // low restitution
+	);
+	bottom_material.shading = THREE.FlatShading;
+
+	var thruster_material = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({ color: new THREE.Color(0x111111)}),
+		.8, // high friction
+		.4 // low restitution
+	);
+
+	var lander = new Physijs.CylinderMesh(
+		// CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
+		new THREE.CylinderGeometry(5, 5, 3, 8, 10, false),
+		bottom_material,
+		100
+		);
+	lander.castShadow = true;
+	lander.receiveShadow = true;
+
+	lander.position.z = 30;
+	lander.position.y = 200;
+
+	
 
 	var _object;
 	var top = new Physijs.CylinderMesh(
 		
 		new THREE.IcosahedronGeometry(5, .3),
-		flat_material,
+		top_material,
 		100
 		);
 
 	top.position.y = 3;
 	top.castShadow = true;
 	top.receiveShadow = true;
-
-	var lander = new Physijs.CylinderMesh(
-		// CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
-		new THREE.CylinderGeometry(5, 5, 3, 8, 10, false),
-		material,
-		100
-		);
-	console.log(lander);
-	lander.castShadow = true;
-	lander.receiveShadow = true;
 	lander.add(top);
 
-	lander.position.z = 30;
-	lander.position.y = 200;
+
+	var r_leg = new Physijs.BoxMesh(
+		
+		new THREE.CubeGeometry(.5, 10, .5, 1, 1, 1),
+		top_material,
+		10
+	);
+
+	r_leg.position.x = 3.5;
+	r_leg.position.y = 1;
+	r_leg.rotation.z = .3;
+	r_leg.castShadow = true;
+	r_leg.receiveShadow = true;
+	lander.add(r_leg);
+
+	var l_leg = new Physijs.BoxMesh(
+		
+		new THREE.CubeGeometry(.5, 10, .5, 1, 1, 1),
+		top_material,
+		10
+	);
+
+	l_leg.position.x = -3.5;
+	l_leg.position.y = 1;
+	l_leg.rotation.z = -.3;
+	l_leg.castShadow = true;
+	l_leg.receiveShadow = true;
+	lander.add(l_leg);
+
+	var f_leg = new Physijs.BoxMesh(
+		
+		new THREE.CubeGeometry(.5, 10, .5, 1, 1, 1),
+		top_material,
+		10
+	);
+
+	f_leg.position.z = 3.5;
+	f_leg.position.y = 1;
+	f_leg.rotation.x = -.3;
+	f_leg.castShadow = true;
+	f_leg.receiveShadow = true;
+	lander.add(f_leg);
+
+	var f_leg = new Physijs.BoxMesh(
+		
+		new THREE.CubeGeometry(.5, 10, .5, 1, 1, 1),
+		top_material,
+		10
+	);
+
+	f_leg.position.z = -3.5;
+	f_leg.position.y = 1;
+	f_leg.rotation.x = .3;
+	f_leg.castShadow = true;
+	f_leg.receiveShadow = true;
+	lander.add(f_leg);
+
+	var thruster = new Physijs.CylinderMesh(
+		new THREE.CylinderGeometry(.5, 2, 3, 30, 10, false),
+		thruster_material,
+		10
+	);
+
+	thruster.position.y = -1;
+	thruster.castShadow = true;
+	thruster.receiveShadow = true;
+	lander.add(thruster);
+
+
 
 	return lander;
 }

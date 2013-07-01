@@ -12,7 +12,6 @@ Game.prototype.init = function() {
 	this.renderer.setClearColorHex( 0x111111, 1 );
 	document.body.appendChild(this.renderer.domElement);
 
-	//temp
 	this.radius = 300;
 
 	this.scene = this.initScene();
@@ -33,11 +32,17 @@ Game.prototype.init = function() {
 
 
 
-	this.ground = new Ground();
+	this.ground = new Ground(0, 600, 600, 100, 100);
 	this.scene.add(this.ground.mesh);
 
-	// this.stars = this.initStars();
-	// this.scene.add(this.stars);
+	this.ground2 = new Ground(600, 600, 600, 100, 100);
+	this.scene.add(this.ground2.mesh);
+
+	this.ground3 = new Ground(-600, 600, 600, 100, 100);
+	this.scene.add(this.ground3.mesh);
+
+	this.stars = this.initStars();
+	this.scene.add(this.stars);
 
 	this.keyboard = new THREEx.KeyboardState();
 
@@ -87,21 +92,21 @@ Game.prototype.initCamera = function() {
 Game.prototype.initLights = function() {
 	var lights = [];
 	// Light
-	// var d_light = new THREE.DirectionalLight( 0xFFFFFF );
-	// d_light.position.set( 20, 40, -15 );
-	// d_light.target.position.set(0, 0, 0);
-	// d_light.castShadow = true;
-	// d_light.shadowCameraLeft = -60;
-	// d_light.shadowCameraTop = -60;
-	// d_light.shadowCameraRight = 60;
-	// d_light.shadowCameraBottom = 60;
-	// d_light.shadowCameraNear = 20;
-	// d_light.shadowCameraFar = 200;
-	// d_light.shadowBias = -.0001
-	// d_light.shadowMapWidth = d_light.shadowMapHeight = 2048;
-	// d_light.shadowDarkness = .7;
+	var d_light = new THREE.DirectionalLight( 0xFFFFFF );
+	d_light.position.set( 20, 40, -15 );
+	d_light.target.position.set(0, 0, 0);
+	d_light.castShadow = true;
+	d_light.shadowCameraLeft = -60;
+	d_light.shadowCameraTop = -60;
+	d_light.shadowCameraRight = 60;
+	d_light.shadowCameraBottom = 60;
+	d_light.shadowCameraNear = 20;
+	d_light.shadowCameraFar = 200;
+	d_light.shadowBias = -.0001
+	d_light.shadowMapWidth = d_light.shadowMapHeight = 2048;
+	d_light.shadowDarkness = .7;
 	
-	// lights.push(d_light);
+	lights.push(d_light);
 
 	var s_light = new THREE.SpotLight( 0xFFFFFF);
 	s_light.position.set( 0, 400, 200 );
