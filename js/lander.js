@@ -1,14 +1,14 @@
 var Lander = function() {
 	// this.material = this.initMaterial();
 	// this.geometry = this.initGeometry();
-	this.mesh = this.initMesh();
-	this.sparks = this.initSparks();
+	this.mesh = this.init_mesh();
+	this.sparks = this.init_sparks();
 	this.thrust_light = new THREE.SpotLight(0xFF7C00);
 	this.thrust_light.distance = 200;
 	this.thrust_on = false;
 }
 
-Lander.prototype.initSparks = function() {
+Lander.prototype.init_sparks = function() {
 	var circle_size = 30;
 	var sparks = new THREE.Particles({
                             size: circle_size,
@@ -51,7 +51,7 @@ Lander.prototype.initSparks = function() {
 	return sparks;
 };
 
-Lander.prototype.initMaterial = function() {
+Lander.prototype.init_material = function() {
 	var material = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial(),
 		.8, // high friction
@@ -61,22 +61,12 @@ Lander.prototype.initMaterial = function() {
 	return material;
 };
 
-Lander.prototype.initGeometry = function() {
+Lander.prototype.init_geometry = function() {
 	var geometry = new THREE.CubeGeometry(4.3, 4.1, 5.5);
 	return geometry;
 };
 
-Lander.prototype.initMesh = function() {
-	// var mesh = new Physijs.BoxMesh(
-	// 	this.geometry,
-	// 	this.material,
-	// 	50 // mass
-	// );
-
-	// mesh.position.set(5, 150, 0);
-	// mesh.receiveShadow = true;
-
-	// return mesh;
+Lander.prototype.init_mesh = function() {
 	var top_material = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({ color: new THREE.Color(0xFFFFFF)}),
 		.8, // high friction

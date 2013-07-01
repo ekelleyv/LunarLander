@@ -8,19 +8,19 @@ var Game = function() {};
 var threexSparks;
 
 Game.prototype.init = function() {
-	this.renderer = this.initRenderer();
+	this.renderer = this.init_renderer();
 	this.renderer.setClearColorHex( 0x111111, 1 );
 	document.body.appendChild(this.renderer.domElement);
 
 	this.radius = 300;
 
-	this.scene = this.initScene();
+	this.scene = this.init_scene();
 
-	this.camera = this.initCamera();
+	this.camera = this.init_camera();
 	this.camera.h_rotation = 0;
 	this.scene.add(this.camera);
 
-	this.lights = this.initLights();
+	this.lights = this.init_lights();
 	for (var i = 0; i < this.lights.length; i++) {
 		this.scene.add(this.lights[i]);
 	}
@@ -42,8 +42,8 @@ Game.prototype.init = function() {
 	this.ground3 = new Ground(-600, 600, 600, 100, 100);
 	this.scene.add(this.ground3.mesh);
 
-	this.stars = this.initStars();
-	this.scene.add(this.stars);
+	// this.stars = this.initStars();
+	// this.scene.add(this.stars);
 
 	this.keyboard = new THREEx.KeyboardState();
 
@@ -51,7 +51,7 @@ Game.prototype.init = function() {
 	this.scene.simulate();
 };
 
-Game.prototype.initRenderer = function() {
+Game.prototype.init_renderer = function() {
 	var renderer =  new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.shadowMapEnabled = true;
@@ -59,20 +59,14 @@ Game.prototype.initRenderer = function() {
 	return renderer;
 };
 
-Game.prototype.initScene = function() {
+Game.prototype.init_scene = function() {
 	var scene = new Physijs.Scene({ fixedTimeStep: 1 / 120 });
 	scene.setGravity(new THREE.Vector3( 0, -9.8, 0 ));
 	scene.fog = new THREE.FogExp2( 0x3B3B47, 0.001 );
-	// scene.addEventListener(
-	// 	'update',
-	// 	function() {
-	// 		scene.simulate( undefined, 2 );
-	// 	}
-	// );
 	return scene;
 };
 
-Game.prototype.initCamera = function() {
+Game.prototype.init_camera = function() {
 	var WIDTH = window.innerWidth,
 	    HEIGHT = window.innerHeight;
 
@@ -90,7 +84,7 @@ Game.prototype.initCamera = function() {
 	return camera;
 }
 
-Game.prototype.initLights = function() {
+Game.prototype.init_lights = function() {
 	var lights = [];
 	// Light
 	var d_light = new THREE.DirectionalLight( 0xFFFFFF );
@@ -120,38 +114,38 @@ Game.prototype.initLights = function() {
 	return lights;
 };
 
-Game.prototype.initStars = function() {
-	var urls = [
-              'images/pos-x.png',
-              'images/neg-x.png',
-              'images/pos-y.png',
-              'images/neg-y.png',
-              'images/pos-z.png',
-              'images/neg-z.png'
-    ];
-    var cubemap = THREE.ImageUtils.loadTextureCube(urls);
-    cubemap.format = THREE.RGBFormat;
+// Game.prototype.init_stars = function() {
+// 	var urls = [
+//               'images/pos-x.png',
+//               'images/neg-x.png',
+//               'images/pos-y.png',
+//               'images/neg-y.png',
+//               'images/pos-z.png',
+//               'images/neg-z.png'
+//     ];
+//     var cubemap = THREE.ImageUtils.loadTextureCube(urls);
+//     cubemap.format = THREE.RGBFormat;
 
-    var shader = THREE.ShaderLib["cube"];
-    shader.uniforms["tCube"].texture = cubemap;
+//     var shader = THREE.ShaderLib["cube"];
+//     shader.uniforms["tCube"].texture = cubemap;
 
-    var material = new THREE.ShaderMaterial({
-    	fragmentShader: shader.fragmentShader,
-    	vertexShader: shader.vertexShader,
-    	uniforms: shader.uniforms
-    });
+//     var material = new THREE.ShaderMaterial({
+//     	fragmentShader: shader.fragmentShader,
+//     	vertexShader: shader.vertexShader,
+//     	uniforms: shader.uniforms
+//     });
 	
 
-    var geometry = new THREE.CubeGeometry( 100000, 100000, 100000, 1, 1, 1, null, true );
+//     var geometry = new THREE.CubeGeometry( 100000, 100000, 100000, 1, 1, 1, null, true );
 
-    var stars = new THREE.Mesh(
-    		geometry,
-    		material
-    	);
-    stars.flipSided = false;
+//     var stars = new THREE.Mesh(
+//     		geometry,
+//     		material
+//     	);
+//     stars.flipSided = false;
 
-    return stars;
-};
+//     return stars;
+// };
 
 Game.prototype.render = function() {
 	this.scene.simulate();
