@@ -16,7 +16,8 @@ var Ground = function(offset, width, depth, start_height, end_height) {
 	this.num_spots = 10;
 	this.min_spot_width = 10;
 	this.max_spot_width = 30;
-	this.inter_spot_noise = 3;
+	// this.inter_spot_noise = 3;
+	this.inter_spot_noise = 0;
 
 
 	this.material = this.init_material();
@@ -94,20 +95,22 @@ Ground.prototype.init_geometry = function() {
 
 			//If between the start and the first landing spot
 			if (spot_count == 0) {
-				prev_x = -this.width/2;
-				prev_height = terrain_height;
+				// prev_x = -this.width/2;
+				// prev_height = terrain_height;
+				terrain_height = this.start_height;
 			}
 			//If between any other two spots
 			else {
-				prev_x = spots[spot_count-1].x;
+				prev_x = spots[spot_count-1].x + spots[spot_count-1].width;
 				prev_height = spots[spot_count-1].y;
+
+				//Calculate the terrain height based on position between spots
+				terrain_height = (x_pos-prev_x)/(target_x-prev_x)*(target_height-prev_height) + prev_height;
+				
+				//Add noise to the inter-spot slope
+				terrain_height += (Math.random()-.5)*this.inter_spot_noise;
 			}
 
-			//Calculate the terrain height based on position between spots
-			terrain_height = (x_pos-prev_x)/(target_x-prev_x)*(target_height-prev_height) + prev_height;
-			
-			//Add noise to the inter-spot slope
-			terrain_height += (Math.random()-.5)*this.inter_spot_noise;
 
 		}
 		//If within the spot, make the terrain flat
@@ -124,9 +127,10 @@ Ground.prototype.init_geometry = function() {
 			}
 			//Between last spot and end
 			else {
-				var prev_x = spots[spots.length-1].x + spots[spots.length-1].width;
-				var prev_height = spots[spots.length-1].y;
-				terrain_height = (x_pos-prev_x)/(this.end_height-prev_x)*(this.end_height-prev_height) + prev_height;
+				terrain_height = this.end_height;
+				// var prev_x = spots[spots.length-1].x + spots[spots.length-1].width;
+				// var prev_height = spots[spots.length-1].y;
+				// terrain_height = (x_pos-prev_x)/(this.end_height-prev_x)*(this.end_height-prev_height) + prev_height;
 			}
 		}
 
