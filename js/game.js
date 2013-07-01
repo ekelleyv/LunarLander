@@ -31,7 +31,8 @@ Game.prototype.init = function() {
 	this.scene.add(this.lander.thrust_light);
 
 
-
+	//Creating three ground pieces by hand
+	//Do this programmatically
 	this.ground = new Ground(0, 600, 600, 100, 100);
 	this.scene.add(this.ground.mesh);
 

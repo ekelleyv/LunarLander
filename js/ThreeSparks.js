@@ -40,7 +40,7 @@ THREE.Particles = (function(){
             var ctx= canvas.getContext("2d");
             ctx.fillStyle = options.color || "red";
             options.program(ctx);
-            document.getElementsByTagName("body")[0].appendChild(canvas);
+            // document.getElementsByTagName("body")[0].appendChild(canvas);
         var texture = new THREE.Texture(canvas);
             texture.needsUpdate = true;
         var geometry = new THREE.Geometry();
