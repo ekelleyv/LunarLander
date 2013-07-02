@@ -2,15 +2,17 @@ var Lander = function() {
 	// this.material = this.initMaterial();
 	// this.geometry = this.initGeometry();
 	this.mesh = this.init_mesh();
-	this.sparks = this.init_sparks();
+	this.thrust = this.init_thrust();
+	this.flames = this.init_flames();
 	this.thrust_light = new THREE.SpotLight(0xFF7C00);
 	this.thrust_light.distance = 200;
 	this.thrust_on = false;
+	this.flames_on = false;
 
 	this.fuel = 1000;
 }
 
-Lander.prototype.init_sparks = function() {
+Lander.prototype.init_thrust = function() {
 	var circle_size = 30;
 	var sparks = new THREE.Particles({
                             size: circle_size,
@@ -49,6 +51,45 @@ Lander.prototype.init_sparks = function() {
 								emitter.addAction(new SPARKS.Move());
 								emitter.addAction(new SPARKS.RandomDrift(1000,0,1000));
 								emitter.addAction(new SPARKS.Accelerate(0,-100,0));
+                            }
+                          });
+	return sparks;
+};
+
+Lander.prototype.init_flames = function() {
+	var circle_size = 30;
+	var sparks = new THREE.Particles({
+                            size: circle_size,
+                            count: 1000,
+                            position: new THREE.Vector3(0,0,0),
+                            color: 'orange' ,
+                            program: function(context){
+	                           	var width = circle_size;
+	                           	var height = circle_size;
+	                           	var size = circle_size;
+								var gradient	= context.createRadialGradient( width/2, height /2, 0, width /2, height /2, width /2 );				
+								gradient.addColorStop( 0  , 'rgba(255,255,255,1)' );
+								gradient.addColorStop( 0.2, 'rgba(255,255,255,.4)' );
+								gradient.addColorStop( 0.4, 'rgba(255, 255, 255, .1)' );
+								gradient.addColorStop( 1  , 'rgba(0,0,0,0)' );
+
+								context.beginPath();
+								context.arc(size/2, size/2, size/2, 0, Math.PI*2, false);
+								context.closePath();
+
+								context.fillStyle = gradient;
+								context.fill();
+                            },
+                            sparksInit: function(emitter, SPARKS){
+
+                                emitter.addInitializer(new SPARKS.Position( new SPARKS.PointZone( new THREE.Vector3(0,0,0) ) ) );
+                                emitter.addInitializer(new SPARKS.Lifetime(0,0.6));
+								// emitter.addInitializer(new SPARKS.Velocity(new SPARKS.PointZone(new THREE.Vector3(0, -100, 0))));
+
+								emitter.addAction(new SPARKS.Age());
+								emitter.addAction(new SPARKS.Move());
+								emitter.addAction(new SPARKS.RandomDrift(200,200,200));
+								emitter.addAction(new SPARKS.Accelerate(0,50,0));
                             }
                           });
 	return sparks;
@@ -221,11 +262,11 @@ Lander.prototype.apply_rotation = function(amount) {
 	this.mesh.setAngularVelocity(new_vector);
 }
 
-Lander.prototype.update_sparks = function() {
-	this.sparks.position = this.mesh.position;
-	this.sparks.rotation.z = this.mesh.rotation.z;
+Lander.prototype.update_thrust = function() {
+	this.thrust.position = this.mesh.position;
+	this.thrust.rotation.z = this.mesh.rotation.z;
 
-	this.thrust_light.position = this.sparks.position;
+	this.thrust_light.position = this.thrust.position;
 
 	var rotation_matrix = new THREE.Matrix4();
 	rotation_matrix.extractRotation(this.mesh.matrix);
@@ -236,6 +277,12 @@ Lander.prototype.update_sparks = function() {
 	this.thrust_light.target.position.addVectors(this.mesh.position, offset);
 	// console.log(this.thrust_light.target.position);
 
-	this.sparks.visible = this.thrust_on;
+	this.thrust.visible = this.thrust_on;
 	this.thrust_light.visible = this.thrust_on;
+}
+
+Lander.prototype.update_flames = function() {
+	this.flames.position = this.mesh.position;
+	this.flames.visible = this.flames_on;
+	// this.flames.rotation = this.mesh.rotation;
 }

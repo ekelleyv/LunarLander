@@ -17,9 +17,19 @@ Game.prototype.init = function() {
 
 	this.elapsed_time = new Date();
 
+	this.landing_time;
+
 	this.radius = 300;
 
 	this.score = 0;
+
+	this.landed = false;
+
+	this.landing_type = 0;
+
+	this.paused = true;
+	this.message = "";
+	this.game_status = "";
 
 	this.scene = this.init_scene();
 
@@ -33,11 +43,13 @@ Game.prototype.init = function() {
 	}
 
 	this.lander = new Lander();
-	this.lander.mesh.addEventListener( 'collision', this.handle_landing);
+	this.lander.mesh.addEventListener( 'collision', this.handle_landing.bind(this));
 
 	this.scene.add(this.lander.mesh);
-	this.scene.add(this.lander.sparks);
+	this.scene.add(this.lander.thrust);
 	this.scene.add(this.lander.thrust_light);
+	this.scene.add(this.lander.flames);
+	console.log(this.lander.flames);
 
 	window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
 
@@ -117,18 +129,26 @@ Game.prototype.update_hud = function() {
 
 	var h_velocity = Math.round(Math.abs(vel.x));
 	var v_velocity = Math.round(Math.abs(vel.y));
+	var altitude = Math.round(this.lander.mesh.position.y);
 
 	var h_string = ("000" + h_velocity.toString()).slice(-3);
 	var v_string = ("000" + v_velocity.toString()).slice(-3);
+	var a_string = ("000" + altitude.toString()).slice(-3);
 
 	context.fillText("ALTITUDE", window.innerWidth - 120, 80);
-	context.fillText("999", window.innerWidth - 50, 80);
+	context.fillText(a_string, window.innerWidth - 50, 80);
 
 	context.fillText("HORIZONTAL SPEED", window.innerWidth - 120, 110);
 	context.fillText(h_string, window.innerWidth - 50, 110);
 
 	context.fillText("VERTICAL SPEED", window.innerWidth - 120, 140);
 	context.fillText(v_string, window.innerWidth - 50, 140);
+
+	context.font = "24px BenderLight";
+	context.textAlign = 'center';
+
+	context.fillText(this.message, window.innerWidth/2, window.innerHeight/2+100);
+	context.fillText(this.game_status, window.innerWidth/2, window.innerHeight/2+130);
 }
 
 Game.prototype.init_scene = function() {
@@ -181,11 +201,41 @@ Game.prototype.init_lights = function() {
 	return lights;
 };
 
+Game.prototype.handle_reset = function() {
+	if (this.landed) {
+		var current_time = new Date();
+		if (current_time - this.landing_time > 3000) {
+			// this.lander.mesh.position.set(0, 250, 0);
+			// this.lander.mesh.rotation.set(0, 0, 0);
+			// this.lander.mesh._physijs.linearVelocity.set(0, 0, 0);
+			// this.lander.mesh._physijs.angularVelocity.set(0, 0, 0);
+			// this.lander.mesh.__dirtyPosition = true;
+			// this.lander.mesh.__dirtyRotation = true;
+			console.log(this.lander.mesh);
+			this.landed = false;
+			//Perfect
+			if (this.landing_type == 0) {
+
+			}
+			//Hard
+			else if (this.landing_type == 1) {
+
+			}
+			//Catastrophic 
+			else {
+
+			}
+		}
+	}
+}
+
 Game.prototype.render = function() {
 	this.update_time();
 	this.scene.simulate();
-	this.lander.update_sparks();
+	this.lander.update_thrust();
+	this.lander.update_flames();
 	this.handle_keys();
+	this.handle_reset();
 	this.update_camera();
 	this.update_hud();
 	requestAnimationFrame( this.render.bind(this) );
@@ -212,8 +262,11 @@ Game.prototype.get_simple_time = function() {
 Game.prototype.handle_keys = function() {
 	this.lander.thrust_on = false;
 	if (this.keyboard.pressed("w") || this.keyboard.pressed("up")) {
-		this.lander.thrust_on = true;
-		this.lander.apply_thrust();
+		
+		if (!this.landed && this.lander.fuel > 0) {
+			this.lander.thrust_on = true;
+			this.lander.apply_thrust();
+		}
 		
 	}
 	if (this.keyboard.pressed("s") || this.keyboard.pressed("down")) {
@@ -228,7 +281,29 @@ Game.prototype.handle_keys = function() {
 };
 
 Game.prototype.handle_landing = function(other_object, relative_velocity, relative_rotation) {
-	console.log(this);
+	var vel = relative_velocity.length();
+
+	if (!this.landed) {
+		if (vel > 10) {
+			this.message = "CATASTROPHIC FAILURE";
+			this.game_status = "GAME OVER";
+			this.landing_type = 2;
+			this.lander.flames_on = true;
+		}
+		else if (vel > 6) {
+			this.message = "HARD LANDING: 50PTS";
+			this.game_status = "GAME OVER";
+			this.score += 50;
+			this.landing_type = 1;
+		}
+		else {
+			this.message = "PERFECT LANDING: 100PTS";
+			this.score += 100;
+			this.landing_type = 0;
+		}
+	this.landing_time = new Date();
+	this.landed = true;
+	}
 }
 
 Game.prototype.update_camera = function() {
