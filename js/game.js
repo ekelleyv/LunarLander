@@ -8,11 +8,18 @@ var Game = function() {};
 var threexSparks;
 
 Game.prototype.init = function() {
+
 	this.renderer = this.init_renderer();
-	this.renderer.setClearColorHex( 0x111111, 1 );
-	document.body.appendChild(this.renderer.domElement);
+
+	this.hud = this.init_hud();
+
+	this.start_time = new Date();
+
+	this.elapsed_time = new Date();
 
 	this.radius = 300;
+
+	this.score = 0;
 
 	this.scene = this.init_scene();
 
@@ -26,9 +33,13 @@ Game.prototype.init = function() {
 	}
 
 	this.lander = new Lander();
+	this.lander.mesh.addEventListener( 'collision', this.handle_landing);
+
 	this.scene.add(this.lander.mesh);
 	this.scene.add(this.lander.sparks);
 	this.scene.add(this.lander.thrust_light);
+
+	window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
 
 
 	//Creating three ground pieces by hand
@@ -42,9 +53,6 @@ Game.prototype.init = function() {
 	this.ground3 = new Ground(-600, 600, 600, 100, 100);
 	this.scene.add(this.ground3.mesh);
 
-	// this.stars = this.initStars();
-	// this.scene.add(this.stars);
-
 	this.keyboard = new THREEx.KeyboardState();
 
 	requestAnimationFrame(this.render.bind(this));
@@ -56,8 +64,72 @@ Game.prototype.init_renderer = function() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.shadowMapEnabled = true;
 	renderer.shadowMapSoft = true;
+	renderer.setClearColorHex( 0x111111, 0 );
+	renderer.domElement.id = "game";
+	renderer.domElement.style.position = "absolute";
+	renderer.domElement.style.zIndex   = 0;
+	document.body.appendChild(renderer.domElement);
 	return renderer;
 };
+
+Game.prototype.onWindowResize = function() {
+	this.camera.aspect = window.innerWidth / window.innerHeight;
+	this.camera.updateProjectionMatrix();
+
+	this.renderer.setSize( window.innerWidth, window.innerHeight );
+	this.hud.width = window.innerWidth;
+	this.hud.height = window.innerHeight;
+};
+
+Game.prototype.init_hud = function() {
+	var canvas = document.createElement('canvas');
+	canvas.id     = "hud";
+	canvas.width  = window.innerWidth;
+	canvas.height = window.innerHeight;
+	canvas.style.zIndex   = 1;
+	canvas.style.position = "absolute";
+
+	document.body.appendChild(canvas);
+
+	return canvas;
+};
+
+Game.prototype.update_hud = function() {
+	var context = this.hud.getContext("2d");
+	context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+	context.font = "20px BenderLight";
+	context.fillStyle = 'white';
+	context.textAlign = 'right';
+
+	var score_string = ("0000" + this.score.toString()).slice (-4)
+	context.fillText("SCORE", 100, 80);
+	context.fillText(score_string, 170, 80);
+
+	context.fillText("TIME", 100, 110);
+	context.fillText(this.get_simple_time(), 170, 110);
+
+	context.fillText("FUEL", 100, 140);
+	context.fillText(this.lander.fuel, 170, 140);
+
+	this.get_simple_time();
+
+	var vel = this.lander.mesh._physijs.linearVelocity;
+
+	var h_velocity = Math.round(Math.abs(vel.x));
+	var v_velocity = Math.round(Math.abs(vel.y));
+
+	var h_string = ("000" + h_velocity.toString()).slice(-3);
+	var v_string = ("000" + v_velocity.toString()).slice(-3);
+
+	context.fillText("ALTITUDE", window.innerWidth - 120, 80);
+	context.fillText("999", window.innerWidth - 50, 80);
+
+	context.fillText("HORIZONTAL SPEED", window.innerWidth - 120, 110);
+	context.fillText(h_string, window.innerWidth - 50, 110);
+
+	context.fillText("VERTICAL SPEED", window.innerWidth - 120, 140);
+	context.fillText(v_string, window.innerWidth - 50, 140);
+}
 
 Game.prototype.init_scene = function() {
 	var scene = new Physijs.Scene({ fixedTimeStep: 1 / 120 });
@@ -88,15 +160,10 @@ Game.prototype.init_lights = function() {
 	var lights = [];
 	// Light
 	var d_light = new THREE.DirectionalLight( 0xFFFFFF );
-	d_light.position.set( 20, 40, -15 );
+	d_light.position.set( 300, 200, 300 );
+	d_light.intensity = .7;
 	d_light.target.position.set(0, 0, 0);
 	d_light.castShadow = true;
-	d_light.shadowCameraLeft = -60;
-	d_light.shadowCameraTop = -60;
-	d_light.shadowCameraRight = 60;
-	d_light.shadowCameraBottom = 60;
-	d_light.shadowCameraNear = 20;
-	d_light.shadowCameraFar = 200;
 	d_light.shadowBias = -.0001
 	d_light.shadowMapWidth = d_light.shadowMapHeight = 2048;
 	d_light.shadowDarkness = .7;
@@ -107,75 +174,62 @@ Game.prototype.init_lights = function() {
 	s_light.position.set( 0, 400, 200 );
 	s_light.target.position.copy( this.scene.position );
 	s_light.castShadow = true;
-	s_light.intensity = .7;
+	s_light.intensity = .8;
 	s_light.shadowDarkness = .7;
 
 	lights.push(s_light);
 	return lights;
 };
 
-// Game.prototype.init_stars = function() {
-// 	var urls = [
-//               'images/pos-x.png',
-//               'images/neg-x.png',
-//               'images/pos-y.png',
-//               'images/neg-y.png',
-//               'images/pos-z.png',
-//               'images/neg-z.png'
-//     ];
-//     var cubemap = THREE.ImageUtils.loadTextureCube(urls);
-//     cubemap.format = THREE.RGBFormat;
-
-//     var shader = THREE.ShaderLib["cube"];
-//     shader.uniforms["tCube"].texture = cubemap;
-
-//     var material = new THREE.ShaderMaterial({
-//     	fragmentShader: shader.fragmentShader,
-//     	vertexShader: shader.vertexShader,
-//     	uniforms: shader.uniforms
-//     });
-	
-
-//     var geometry = new THREE.CubeGeometry( 100000, 100000, 100000, 1, 1, 1, null, true );
-
-//     var stars = new THREE.Mesh(
-//     		geometry,
-//     		material
-//     	);
-//     stars.flipSided = false;
-
-//     return stars;
-// };
-
 Game.prototype.render = function() {
+	this.update_time();
 	this.scene.simulate();
 	this.lander.update_sparks();
 	this.handle_keys();
 	this.update_camera();
+	this.update_hud();
 	requestAnimationFrame( this.render.bind(this) );
 	this.renderer.render( this.scene, this.camera );
 };
 
+Game.prototype.update_time = function() {
+	var current_time = new Date();
+	this.elapsed_time = current_time - this.start_time;
+};
+
+Game.prototype.get_simple_time = function() {
+	var elapsed = this.elapsed_time;
+	elapsed /= 1000;
+	var seconds = Math.round(elapsed % 60);
+
+	elapsed = Math.floor(elapsed / 60);
+	var minutes = Math.round(elapsed % 60);
+
+	var simple_time = ("0" + minutes.toString()).slice (-1) + ":" + ("00" + seconds.toString()).slice (-2) ;
+	return simple_time;
+}
+
 Game.prototype.handle_keys = function() {
 	this.lander.thrust_on = false;
-	if (this.keyboard.pressed("w")) {
+	if (this.keyboard.pressed("w") || this.keyboard.pressed("up")) {
 		this.lander.thrust_on = true;
 		this.lander.apply_thrust();
 		
 	}
-	if (this.keyboard.pressed("s")) {
+	if (this.keyboard.pressed("s") || this.keyboard.pressed("down")) {
 		
 	}
-	if (this.keyboard.pressed("a")) {
+	if (this.keyboard.pressed("a") || this.keyboard.pressed("left")) {
 		this.lander.rotate_left();
 	}
-	if (this.keyboard.pressed("d")) {
+	if (this.keyboard.pressed("d") || this.keyboard.pressed("right")) {
 		this.lander.rotate_right();
 	}
-	// this.camera.position.x = this.radius*Math.sin( this.camera.h_rotation );         
-	// this.camera.position.z = this.radius*Math.cos( this.camera.h_rotation );
-	// this.camera.lookAt(this.scene.position);
 };
+
+Game.prototype.handle_landing = function(other_object, relative_velocity, relative_rotation) {
+	console.log(this);
+}
 
 Game.prototype.update_camera = function() {
 	this.camera.position.x = this.lander.mesh.position.x;

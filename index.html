@@ -4,6 +4,32 @@
 
 <head>
 	<title>Lunar Lander</title>
+
+	<style>
+		* { margin: 0; padding: 0; }
+
+		@font-face {
+		    font-family: 'BenderLight';
+/*		    src: url('fonts/Bender_Light.eot');*/
+	/*	    src: url('fonts/Bender_Light.woff') format('woff'),*/
+		    src: url('fonts/Bender_Light.ttf') format('truetype');
+/*		         url('fonts/Bender_Light.svg#BenderLight') format('svg');*/
+		    font-weight: normal;
+		    font-style: normal;
+
+		}
+		
+		html { 
+			background: url(images/bkg.png) no-repeat center center fixed; 
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size: cover;
+		}
+	</style>
+
+	<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
 	<script type="text/javascript" src="js/underscore.js"></script>
 	<script type="text/javascript" src="js/three.min.js"></script>
 	<script type="text/javascript" src="js/THREEx.KeyboardState.js"></script>
@@ -20,7 +46,7 @@
 
 </head>
 
-<body style="margin:0px; overflow:hidden;">
+<body style="overflow:hidden;">
 </body>
 
 </html>

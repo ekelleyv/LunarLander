@@ -6,6 +6,8 @@ var Lander = function() {
 	this.thrust_light = new THREE.SpotLight(0xFF7C00);
 	this.thrust_light.distance = 200;
 	this.thrust_on = false;
+
+	this.fuel = 1000;
 }
 
 Lander.prototype.init_sparks = function() {
@@ -39,13 +41,14 @@ Lander.prototype.init_sparks = function() {
                             },
                             sparksInit: function(emitter, SPARKS){
 
-                                emitter.addInitializer(new SPARKS.Position( new SPARKS.PointZone( new THREE.Vector3(0,0,0) ) ) );								emitter.addInitializer(new SPARKS.Lifetime(0,0.1));
+                                emitter.addInitializer(new SPARKS.Position( new SPARKS.PointZone( new THREE.Vector3(0,0,0) ) ) );
+                                emitter.addInitializer(new SPARKS.Lifetime(0,0.15));
 								emitter.addInitializer(new SPARKS.Velocity(new SPARKS.PointZone(new THREE.Vector3(0, -100, 0))));
 
 								emitter.addAction(new SPARKS.Age());
 								emitter.addAction(new SPARKS.Move());
-								emitter.addAction(new SPARKS.RandomDrift(2000,0,2000));
-								emitter.addAction(new SPARKS.Accelerate(0,-200,0));
+								emitter.addAction(new SPARKS.RandomDrift(1000,0,1000));
+								emitter.addAction(new SPARKS.Accelerate(0,-100,0));
                             }
                           });
 	return sparks;
@@ -198,6 +201,8 @@ Lander.prototype.apply_thrust = function() {
 	var force_vector = new THREE.Vector4(0, strength, 0, 1);
 	force_vector.applyMatrix4(rotation_matrix);
 	this.mesh.applyCentralForce(force_vector);
+
+	this.fuel = Math.max(this.fuel - 1, 0);
 }
 
 Lander.prototype.rotate_left = function() {
