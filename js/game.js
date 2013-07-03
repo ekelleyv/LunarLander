@@ -56,15 +56,8 @@ Game.prototype.init = function() {
 
 	//Creating three ground pieces by hand
 	//Do this programmatically
-	this.ground = new Ground(0, 600, 600, 100, 100);
-	this.scene.add(this.ground.mesh);
-
-	this.ground2 = new Ground(600, 600, 600, 100, 100);
-	this.scene.add(this.ground2.mesh);
-
-	this.ground3 = new Ground(-600, 600, 600, 100, 100);
-	this.scene.add(this.ground3.mesh);
-
+	this.terrain = new Terrain();
+	this.terrain.init(this.scene);
 	this.keyboard = new THREEx.KeyboardState();
 
 	requestAnimationFrame(this.render.bind(this));
@@ -237,6 +230,7 @@ Game.prototype.render = function() {
 	this.handle_keys();
 	this.handle_reset();
 	this.update_camera();
+	this.terrain.update(this.scene, this.camera.position);
 	this.update_hud();
 	requestAnimationFrame( this.render.bind(this) );
 	this.renderer.render( this.scene, this.camera );
@@ -309,7 +303,7 @@ Game.prototype.handle_landing = function(other_object, relative_velocity, relati
 Game.prototype.update_camera = function() {
 	this.camera.position.x = this.lander.mesh.position.x;
 	this.camera.position.y = 100;
-	this.camera.position.z = Math.max(2*this.lander.mesh.position.y + 50, 50);
+	this.camera.position.z = Math.min(Math.max(2*this.lander.mesh.position.y + 50, 50), 1000);
 
 	this.camera.lookAt(this.lander.mesh.position);
 };
