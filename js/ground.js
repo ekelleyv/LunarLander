@@ -26,7 +26,7 @@ var Ground = function(offset, width, depth, start_height, end_height) {
 
 Ground.prototype.init_material = function() {
 	var material = Physijs.createMaterial(
-		new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'images/dirt.png' ) }),
+		new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'images/dirt.jpg' ) }),
 		.8, // high friction
 		.3 // low restitution
 	);

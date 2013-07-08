@@ -1,9 +1,12 @@
 var Lander = function(scene) {
 	// this.material = this.initMaterial();
 	// this.geometry = this.initGeometry();
+	this.start_height = 300;
+	this.start_depth = 30;
+
 	this.mesh = this.init_mesh();
-	this.mesh.position.z = 30;
-	this.mesh.position.y = 250;
+	this.mesh.position.z = this.start_depth;
+	this.mesh.position.y = this.start_height;
 	// this.mesh.rotation.z = 90*(Math.PI/180);
 
 
@@ -14,7 +17,8 @@ var Lander = function(scene) {
 	this.thrust_on = false;
 	this.flames_on = false;
 
-	this.fuel = 1000;
+	this.start_fuel = 1000;
+	this.fuel = this.start_fuel;
 	this.burn_rate = .5;
 
 	scene.add(this.mesh);
@@ -294,8 +298,9 @@ Lander.prototype.reset_lander = function(scene) {
 	scene.remove(this.mesh);
 
 	this.mesh = this.init_mesh();
-	this.mesh.position.z = 30;
-	this.mesh.position.y = 250;
+	this.mesh.position.z = this.start_depth;
+	this.mesh.position.y = this.start_height;
+	this.flames_on = false;
 
 	scene.add(this.mesh);
 };

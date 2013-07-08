@@ -14,7 +14,7 @@ Game.prototype.init = function() {
 	this.hud = this.init_hud();
 
 	this.start_time = new Date();
-	this.elapsed_time = new Date();
+	this.elapsed_time = 0;
 	this.landing_time;
 
 
@@ -23,8 +23,12 @@ Game.prototype.init = function() {
 	this.landed = false;
 	this.landing_type = 0;
 	this.paused = true;
-	this.message = "";
-	this.game_status = "";
+	this.game_started = false;
+	this.start_message = "PRESS SPACE TO START"
+	this.start_instruction = ""
+
+	this.message = this.start_message;
+	this.game_status = this.start_instruction;
 
 
 
@@ -188,41 +192,32 @@ Game.prototype.init_lights = function() {
 	return lights;
 };
 
-Game.prototype.handle_reset = function() {
-	if (this.landed) {
-		var current_time = new Date();
-		if (current_time - this.landing_time > 3000) {
-			this.lander.reset_lander(this.scene);
-
-			this.landed = false;
-			//Perfect
-			if (this.landing_type == 0) {
-
-			}
-			//Hard
-			else if (this.landing_type == 1) {
-
-			}
-			//Catastrophic 
-			else {
-
-			}
-		}
-	}
-}
 
 Game.prototype.render = function() {
-	this.update_time();
-	this.scene.simulate();
+
+	this.handle_keys();
+	this.update_camera();
+	this.update_hud();
 	this.lander.update_thrust();
 	this.lander.update_flames();
-	this.handle_keys();
-	this.handle_reset();
-	this.update_camera();
-	this.terrain.update(this.scene, this.camera.position);
-	this.update_hud();
-	requestAnimationFrame( this.render.bind(this) );
+
+	if (this.game_started){
+		this.lander.mesh.setLinearFactor(new THREE.Vector3(1, 1, 1));
+		this.lander.mesh.setAngularFactor(new THREE.Vector3(1, 1, 1));
+
+		this.update_time();
+		
+		this.handle_reset();
+		this.terrain.update(this.scene, this.camera.position);
+	}
+	else {
+		this.lander.mesh.setLinearFactor(new THREE.Vector3(0, -.1, 0));
+		// this.lander.mesh.setAngularFactor(new THREE.Vector3(0, .1, 0));
+	}
+
+	this.scene.simulate();
 	this.renderer.render( this.scene, this.camera );
+	requestAnimationFrame( this.render.bind(this) );
 };
 
 Game.prototype.update_time = function() {
@@ -243,23 +238,33 @@ Game.prototype.get_simple_time = function() {
 }
 
 Game.prototype.handle_keys = function() {
-	this.lander.thrust_on = false;
-	if (this.keyboard.pressed("w") || this.keyboard.pressed("up")) {
-		
-		if (!this.landed && this.lander.fuel > 0) {
-			this.lander.thrust_on = true;
-			this.lander.apply_thrust();
+	if (this.game_started) {
+		this.lander.thrust_on = false;
+	}
+	else {
+		this.lander.thrust_on = true;
+	}
+
+	if (this.keyboard.pressed(" ")) {
+		this.game_started = true;
+		this.message = "";
+	}
+
+	if (this.game_started) {
+		if (this.keyboard.pressed("w") || this.keyboard.pressed("up")) {
+			
+			if (!this.landed && this.lander.fuel > 0) {
+				this.lander.thrust_on = true;
+				this.lander.apply_thrust();
+			}
+			
 		}
-		
-	}
-	if (this.keyboard.pressed("s") || this.keyboard.pressed("down")) {
-		this.terrain.reset_terrain(this.scene);
-	}
-	if (this.keyboard.pressed("a") || this.keyboard.pressed("left")) {
-		this.lander.rotate_left();
-	}
-	if (this.keyboard.pressed("d") || this.keyboard.pressed("right")) {
-		this.lander.rotate_right();
+		if (this.keyboard.pressed("a") || this.keyboard.pressed("left")) {
+			this.lander.rotate_left();
+		}
+		if (this.keyboard.pressed("d") || this.keyboard.pressed("right")) {
+			this.lander.rotate_right();
+		}
 	}
 };
 
@@ -286,6 +291,35 @@ Game.prototype.handle_landing = function(other_object, relative_velocity, relati
 		}
 	this.landing_time = new Date();
 	this.landed = true;
+	}
+}
+
+Game.prototype.handle_reset = function() {
+	if (this.landed) {
+		var current_time = new Date();
+		if (current_time - this.landing_time > 5000) {
+			this.lander.reset_lander(this.scene);
+			this.lander.mesh.addEventListener( 'collision', this.handle_landing.bind(this));
+			this.landed = false;
+			this.message = "";
+			this.game_status = "";
+
+			this.terrain.reset_terrain(this.scene);
+			
+			//Perfect
+			if (this.landing_type == 0) {
+
+			}
+			//Hard + Catastrophic 
+			else {
+				this.score = 0;
+				this.lander.fuel = this.lander.start_fuel;
+				this.start_time = new Date();
+				this.game_started = false;
+				this.message = this.start_message;
+				this.elapsed_time = 0;
+			}
+		}
 	}
 }
 
