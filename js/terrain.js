@@ -1,8 +1,10 @@
-var Terrain = function() {
+var Terrain = function(scene) {
 	this.ground_pieces = [];
 	this.width = 600;
 	this.min_x = 0;
 	this.max_x = 0;
+
+	this.init(scene);
 }
 
 Terrain.prototype.init = function(scene) {
@@ -16,9 +18,9 @@ Terrain.prototype.init = function(scene) {
 			this.max_x = start+this.width/2;
 		}
 		var ground = new Ground(start, this.width, this.width, 100, 100);
+		this.ground_pieces.push(ground);
 		scene.add(ground.mesh);
 	}
-	console.log(scene);
 };
 
 Terrain.prototype.update = function(scene, camera_pos) {
@@ -38,4 +40,13 @@ Terrain.prototype.update = function(scene, camera_pos) {
 		this.min_x -= this.width;
 		scene.add(ground.mesh);
 	}
-}
+};
+
+
+Terrain.prototype.reset_terrain = function(scene) {
+	for (var i = 0; i < this.ground_pieces.length; i++) {
+		scene.remove(this.ground_pieces[i].mesh);
+	}
+	this.ground_pieces = [];
+	this.init(scene);
+};

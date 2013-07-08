@@ -14,53 +14,38 @@ Game.prototype.init = function() {
 	this.hud = this.init_hud();
 
 	this.start_time = new Date();
-
 	this.elapsed_time = new Date();
-
 	this.landing_time;
 
+
 	this.radius = 300;
-
 	this.score = 0;
-
 	this.landed = false;
-
 	this.landing_type = 0;
-
 	this.paused = true;
 	this.message = "";
 	this.game_status = "";
 
+
+
 	this.scene = this.init_scene();
 
 	this.camera = this.init_camera();
-	this.camera.h_rotation = 0;
-	this.scene.add(this.camera);
 
 	this.lights = this.init_lights();
-	for (var i = 0; i < this.lights.length; i++) {
-		this.scene.add(this.lights[i]);
-	}
 
-	this.lander = new Lander();
+	this.lander = new Lander(this.scene);
 	this.lander.mesh.addEventListener( 'collision', this.handle_landing.bind(this));
 
-	this.scene.add(this.lander.mesh);
-	this.scene.add(this.lander.thrust);
-	this.scene.add(this.lander.thrust_light);
-	this.scene.add(this.lander.flames);
-	console.log(this.lander.flames);
 
-	window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
+	this.terrain = new Terrain(this.scene);
 
-
-	//Creating three ground pieces by hand
-	//Do this programmatically
-	this.terrain = new Terrain();
-	this.terrain.init(this.scene);
 	this.keyboard = new THREEx.KeyboardState();
 
 	requestAnimationFrame(this.render.bind(this));
+
+	window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
+
 	this.scene.simulate();
 };
 
@@ -114,7 +99,7 @@ Game.prototype.update_hud = function() {
 	context.fillText(this.get_simple_time(), 170, 110);
 
 	context.fillText("FUEL", 100, 140);
-	context.fillText(this.lander.fuel, 170, 140);
+	context.fillText(Math.round(this.lander.fuel), 170, 140);
 
 	this.get_simple_time();
 
@@ -166,6 +151,10 @@ Game.prototype.init_camera = function() {
 	camera.position.set( 0, 50, this.radius);
 	// camera.position.set(0, 0, 100);
 	camera.lookAt(new THREE.Vector3(0, 0, 0) );
+	camera.h_rotation = 0;
+
+	this.scene.add(camera);
+
 	return camera;
 }
 
@@ -191,6 +180,11 @@ Game.prototype.init_lights = function() {
 	s_light.shadowDarkness = .7;
 
 	lights.push(s_light);
+
+	for (var i = 0; i < lights.length; i++) {
+		this.scene.add(lights[i]);
+	}
+
 	return lights;
 };
 
@@ -198,13 +192,8 @@ Game.prototype.handle_reset = function() {
 	if (this.landed) {
 		var current_time = new Date();
 		if (current_time - this.landing_time > 3000) {
-			// this.lander.mesh.position.set(0, 250, 0);
-			// this.lander.mesh.rotation.set(0, 0, 0);
-			// this.lander.mesh._physijs.linearVelocity.set(0, 0, 0);
-			// this.lander.mesh._physijs.angularVelocity.set(0, 0, 0);
-			// this.lander.mesh.__dirtyPosition = true;
-			// this.lander.mesh.__dirtyRotation = true;
-			console.log(this.lander.mesh);
+			this.lander.reset_lander(this.scene);
+
 			this.landed = false;
 			//Perfect
 			if (this.landing_type == 0) {
@@ -264,7 +253,7 @@ Game.prototype.handle_keys = function() {
 		
 	}
 	if (this.keyboard.pressed("s") || this.keyboard.pressed("down")) {
-		
+		this.terrain.reset_terrain(this.scene);
 	}
 	if (this.keyboard.pressed("a") || this.keyboard.pressed("left")) {
 		this.lander.rotate_left();

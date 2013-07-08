@@ -1,7 +1,12 @@
-var Lander = function() {
+var Lander = function(scene) {
 	// this.material = this.initMaterial();
 	// this.geometry = this.initGeometry();
 	this.mesh = this.init_mesh();
+	this.mesh.position.z = 30;
+	this.mesh.position.y = 250;
+	// this.mesh.rotation.z = 90*(Math.PI/180);
+
+
 	this.thrust = this.init_thrust();
 	this.flames = this.init_flames();
 	this.thrust_light = new THREE.SpotLight(0xFF7C00);
@@ -10,6 +15,12 @@ var Lander = function() {
 	this.flames_on = false;
 
 	this.fuel = 1000;
+	this.burn_rate = .5;
+
+	scene.add(this.mesh);
+	scene.add(this.thrust);
+	scene.add(this.thrust_light);
+	scene.add(this.flames);
 }
 
 Lander.prototype.init_thrust = function() {
@@ -28,11 +39,6 @@ Lander.prototype.init_thrust = function() {
 								gradient.addColorStop( 0.2, 'rgba(255,255,255,.4)' );
 								gradient.addColorStop( 0.4, 'rgba(128,128,128,.1)' );
 								gradient.addColorStop( 1  , 'rgba(0,0,0,0)' );
-
-								// gradient.addColorStop( 0  , 'rgba(0, 0, 255,1)' );
-								// gradient.addColorStop( 0.2, 'rgba(0, 0, 255,.4)' );
-								// gradient.addColorStop( 0.4, 'rgba(0, 0, 128,.1)' );
-								// gradient.addColorStop( 1  , 'rgba(0, 0, 0,0)' );
 
 								context.beginPath();
 								context.arc(size/2, size/2, size/2, 0, Math.PI*2, false);
@@ -143,9 +149,6 @@ Lander.prototype.init_mesh = function() {
 	lander.castShadow = true;
 	lander.receiveShadow = true;
 
-	lander.position.z = 30;
-	lander.position.y = 250;
-
 	
 
 	var _object;
@@ -243,7 +246,7 @@ Lander.prototype.apply_thrust = function() {
 	force_vector.applyMatrix4(rotation_matrix);
 	this.mesh.applyCentralForce(force_vector);
 
-	this.fuel = Math.max(this.fuel - 1, 0);
+	this.fuel = Math.max(this.fuel - this.burn_rate, 0);
 }
 
 Lander.prototype.rotate_left = function() {
@@ -286,3 +289,13 @@ Lander.prototype.update_flames = function() {
 	this.flames.visible = this.flames_on;
 	// this.flames.rotation = this.mesh.rotation;
 }
+
+Lander.prototype.reset_lander = function(scene) {
+	scene.remove(this.mesh);
+
+	this.mesh = this.init_mesh();
+	this.mesh.position.z = 30;
+	this.mesh.position.y = 250;
+
+	scene.add(this.mesh);
+};
