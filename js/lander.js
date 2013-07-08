@@ -310,7 +310,7 @@ Lander.prototype.reset_lander = function(scene) {
 	this.mesh.position.z = this.start_depth;
 	this.mesh.position.y = this.start_height;
 	this.flames_on = false;
-	thrusterOff();
+	thrustSound.pause();
 
 	scene.add(this.mesh);
 };
