@@ -272,13 +272,13 @@ Game.prototype.handle_landing = function(other_object, relative_velocity, relati
 	var vel = relative_velocity.length();
 
 	if (!this.landed) {
-		if (vel > 10) {
+		if (vel > 12) {
 			this.message = "CATASTROPHIC FAILURE";
 			this.game_status = "GAME OVER";
 			this.landing_type = 2;
 			this.lander.flames_on = true;
 		}
-		else if (vel > 6) {
+		else if (vel > 8) {
 			this.message = "HARD LANDING: 50PTS";
 			this.game_status = "GAME OVER";
 			this.score += 50;
