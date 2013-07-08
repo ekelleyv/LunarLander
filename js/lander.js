@@ -284,6 +284,15 @@ Lander.prototype.update_thrust = function() {
 	this.thrust_light.target.position.addVectors(this.mesh.position, offset);
 	// console.log(this.thrust_light.target.position);
 
+	if (!this.thrust.visible && this.thrust_on) {
+		console.log("starting");
+		playThruster();
+	}
+	else if (this.thrust.visible && !this.thrust_on) {
+		console.log("ending");
+		thrusterOff();
+	}
+
 	this.thrust.visible = this.thrust_on;
 	this.thrust_light.visible = this.thrust_on;
 }
@@ -301,6 +310,7 @@ Lander.prototype.reset_lander = function(scene) {
 	this.mesh.position.z = this.start_depth;
 	this.mesh.position.y = this.start_height;
 	this.flames_on = false;
+	thrusterOff();
 
 	scene.add(this.mesh);
 };

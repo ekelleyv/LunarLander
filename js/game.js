@@ -152,7 +152,7 @@ Game.prototype.init_camera = function() {
                                 ASPECT,
                                 NEAR,
                                 FAR  );
-	camera.position.set( 0, 50, this.radius);
+	camera.position.set( 0, 100, this.radius);
 	// camera.position.set(0, 0, 100);
 	camera.lookAt(new THREE.Vector3(0, 0, 0) );
 	camera.h_rotation = 0;
@@ -211,8 +211,12 @@ Game.prototype.render = function() {
 		this.terrain.update(this.scene, this.camera.position);
 	}
 	else {
-		this.lander.mesh.setLinearFactor(new THREE.Vector3(0, -.1, 0));
-		// this.lander.mesh.setAngularFactor(new THREE.Vector3(0, .1, 0));
+		this.lander.mesh.setLinearFactor(new THREE.Vector3(0, -.05, 0));
+	}
+	console.log(this.lander.fuel);
+	if (this.lander.fuel < 150) {
+		startBeeping();
+		this.message = "LOW FUEL ALERT";
 	}
 
 	this.scene.simulate();
@@ -251,6 +255,8 @@ Game.prototype.handle_keys = function() {
 	}
 
 	if (this.game_started) {
+
+
 		if (this.keyboard.pressed("w") || this.keyboard.pressed("up")) {
 			
 			if (!this.landed && this.lander.fuel > 0) {
@@ -259,6 +265,8 @@ Game.prototype.handle_keys = function() {
 			}
 			
 		}
+
+
 		if (this.keyboard.pressed("a") || this.keyboard.pressed("left")) {
 			this.lander.rotate_left();
 		}
@@ -272,22 +280,25 @@ Game.prototype.handle_landing = function(other_object, relative_velocity, relati
 	var vel = relative_velocity.length();
 
 	if (!this.landed) {
-		if (vel > 12) {
+		if (vel > 10) {
 			this.message = "CATASTROPHIC FAILURE";
 			this.game_status = "GAME OVER";
 			this.landing_type = 2;
 			this.lander.flames_on = true;
+			playExplosion();
 		}
-		else if (vel > 8) {
+		else if (vel > 6) {
 			this.message = "HARD LANDING: 50PTS";
 			this.game_status = "GAME OVER";
 			this.score += 50;
 			this.landing_type = 1;
+			playHard();
 		}
 		else {
 			this.message = "PERFECT LANDING: 100PTS";
 			this.score += 100;
 			this.landing_type = 0;
+			playLand();
 		}
 	this.landing_time = new Date();
 	this.landed = true;
@@ -303,6 +314,7 @@ Game.prototype.handle_reset = function() {
 			this.landed = false;
 			this.message = "";
 			this.game_status = "";
+			stopBeeping();
 
 			this.terrain.reset_terrain(this.scene);
 			
