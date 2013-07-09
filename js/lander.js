@@ -1,13 +1,14 @@
 var Lander = function(scene) {
 	// this.material = this.initMaterial();
 	// this.geometry = this.initGeometry();
-	this.start_height = 300;
+	this.start_height = 350;
 	this.start_depth = 30;
+	this.start_angle = 75;
 
 	this.mesh = this.init_mesh();
 	this.mesh.position.z = this.start_depth;
 	this.mesh.position.y = this.start_height;
-	// this.mesh.rotation.z = 90*(Math.PI/180);
+	this.mesh.rotation.z = this.start_angle*(Math.PI/180);
 
 
 	this.thrust = this.init_thrust();
@@ -253,6 +254,7 @@ Lander.prototype.apply_thrust = function() {
 	this.fuel = Math.max(this.fuel - this.burn_rate, 0);
 }
 
+
 Lander.prototype.rotate_left = function() {
 	this.apply_rotation(.1);
 }
@@ -285,11 +287,9 @@ Lander.prototype.update_thrust = function() {
 	// console.log(this.thrust_light.target.position);
 
 	if (!this.thrust.visible && this.thrust_on) {
-		console.log("starting");
 		playThruster();
 	}
 	else if (this.thrust.visible && !this.thrust_on) {
-		console.log("ending");
 		thrusterOff();
 	}
 
@@ -309,6 +309,7 @@ Lander.prototype.reset_lander = function(scene) {
 	this.mesh = this.init_mesh();
 	this.mesh.position.z = this.start_depth;
 	this.mesh.position.y = this.start_height;
+	this.mesh.rotation.z = this.start_angle*(Math.PI/180);
 	this.flames_on = false;
 	thrustSound.pause();
 

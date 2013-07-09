@@ -73,7 +73,6 @@ function decreaseThruster(e) {
 		console.log(thrustSound.volume);
 	}
 	if(thrustVolume<=.01) {
-		console.log("calling stopThruster");
 		stopThruster();
 		thrustOn = false;
 		thrustSound.pause(); 

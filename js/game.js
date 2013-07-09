@@ -16,6 +16,9 @@ Game.prototype.init = function() {
 	this.start_time = new Date();
 	this.elapsed_time = 0;
 	this.landing_time;
+	this.landing_vel;
+	this.landing_angle;
+	this.assigned_score = false;
 
 
 	this.radius = 300;
@@ -39,7 +42,7 @@ Game.prototype.init = function() {
 	this.lights = this.init_lights();
 
 	this.lander = new Lander(this.scene);
-	this.lander.mesh.addEventListener( 'collision', this.handle_landing.bind(this));
+	this.lander.mesh.addEventListener( 'collision', this.handle_collision.bind(this));
 
 
 	this.terrain = new Terrain(this.scene);
@@ -200,23 +203,17 @@ Game.prototype.render = function() {
 	this.update_hud();
 	this.lander.update_thrust();
 	this.lander.update_flames();
+	this.handle_fuel_alert();
+	this.handle_landing();
 
 	if (this.game_started){
 		this.lander.mesh.setLinearFactor(new THREE.Vector3(1, 1, 1));
-		this.lander.mesh.setAngularFactor(new THREE.Vector3(1, 1, 1));
-
 		this.update_time();
-		
 		this.handle_reset();
 		this.terrain.update(this.scene, this.camera.position);
 	}
 	else {
-		this.lander.mesh.setLinearFactor(new THREE.Vector3(0, -.05, 0));
-	}
-	console.log(this.lander.fuel);
-	if (this.lander.fuel < 150) {
-		startBeeping();
-		this.message = "LOW FUEL ALERT";
+		this.lander.mesh.setLinearFactor(new THREE.Vector3(0, 0, 0));
 	}
 
 	this.scene.simulate();
@@ -239,25 +236,20 @@ Game.prototype.get_simple_time = function() {
 
 	var simple_time = ("0" + minutes.toString()).slice (-1) + ":" + ("00" + seconds.toString()).slice (-2) ;
 	return simple_time;
-}
+};
+
+Game.prototype.handle_fuel_alert = function() {
+	if (this.lander.fuel < 150) {
+		startBeeping();
+		this.message = "LOW FUEL ALERT";
+	}
+};
 
 Game.prototype.handle_keys = function() {
 	if (this.game_started) {
 		this.lander.thrust_on = false;
-	}
-	else {
-		this.lander.thrust_on = true;
-	}
 
-	if (this.keyboard.pressed(" ")) {
-		this.game_started = true;
-		this.message = "";
-	}
-
-	if (this.game_started) {
-
-
-		if (this.keyboard.pressed("w") || this.keyboard.pressed("up")) {
+		if (this.keyboard.pressed("w") || this.keyboard.pressed("up") || this.keyboard.pressed(" ")) {
 			
 			if (!this.landed && this.lander.fuel > 0) {
 				this.lander.thrust_on = true;
@@ -274,47 +266,88 @@ Game.prototype.handle_keys = function() {
 			this.lander.rotate_right();
 		}
 	}
+	else {
+		this.lander.thrust_on = true;
+
+		if (this.keyboard.pressed(" ")) {
+			this.game_started = true;
+			this.message = "";
+		}
+	}
 };
 
-Game.prototype.handle_landing = function(other_object, relative_velocity, relative_rotation) {
+Game.prototype.handle_collision = function(other_object, relative_velocity, relative_rotation) {
 	var vel = relative_velocity.length();
 
 	if (!this.landed) {
-		if (vel > 10) {
-			this.message = "CATASTROPHIC FAILURE";
-			this.game_status = "GAME OVER";
-			this.landing_type = 2;
-			this.lander.flames_on = true;
-			playExplosion();
-		}
-		else if (vel > 6) {
-			this.message = "HARD LANDING: 50PTS";
-			this.game_status = "GAME OVER";
-			this.score += 50;
-			this.landing_type = 1;
-			playHard();
-		}
-		else {
-			this.message = "PERFECT LANDING: 100PTS";
-			this.score += 100;
-			this.landing_type = 0;
-			playLand();
-		}
-	this.landing_time = new Date();
-	this.landed = true;
+		this.landing_vel = vel;
+		this.landing_angle = this.lander.mesh.rotation.z;
+		this.landing_time = new Date();
+		this.landed = true;
+	}
+	else {
+		this.landing_vel = Math.max(vel, this.landing_vel);
+	}
+
+	if (vel > 10) {
+		this.message = "CATASTROPHIC FAILURE";
+		this.game_status = "GAME OVER";
+		this.landing_type = 2;
+		this.lander.flames_on = true;
+		playExplosion();
+		this.assigned_score = true;
+	}
+	else if (vel > 6) {
+		playHard();
+	}
+	else {
+		playLand();
 	}
 }
+
+Game.prototype.handle_landing = function() {
+
+	if (this.landed) {
+		var current_time = new Date();
+		var angle_diff = Math.abs(this.lander.mesh.rotation.z - this.landing_angle);
+		if (current_time - this.landing_time > 2000 && !this.assigned_score) {
+			console.log(angle_diff*180/Math.PI);
+			if (angle_diff*180/Math.PI > 20) {
+				this.message = "TOO MUCH ANGLE";
+				this.game_status = "GAME OVER";
+				this.landing_type = 2;
+				this.lander.flames_on = true;
+			}
+			else if (this.landing_vel > 6 && this.landing_vel < 10) {
+				this.message = "HARD LANDING: 50PTS";
+				this.game_status = "GAME OVER";
+				this.score += 50;
+				this.landing_type = 1;
+			}
+			else if (this.landing_vel < 6) {
+				this.message = "PERFECT LANDING: 100PTS";
+				this.score += 100;
+				this.landing_type = 0;
+				
+			}
+			this.landing_vel = 0;
+			this.landing_angle = 0;
+			this.assigned_score = true;
+		}
+	}
+};
 
 Game.prototype.handle_reset = function() {
 	if (this.landed) {
 		var current_time = new Date();
 		if (current_time - this.landing_time > 5000) {
 			this.lander.reset_lander(this.scene);
-			this.lander.mesh.addEventListener( 'collision', this.handle_landing.bind(this));
+			this.lander.mesh.addEventListener( 'collision', this.handle_collision.bind(this));
 			this.landed = false;
 			this.message = "";
 			this.game_status = "";
 			stopBeeping();
+			this.assigned_score = false;
 
 			this.terrain.reset_terrain(this.scene);
 			
