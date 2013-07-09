@@ -33,6 +33,8 @@ Game.prototype.init = function() {
 	this.message = this.start_message;
 	this.game_status = this.start_instruction;
 
+	this.render_stats;
+	this.init_stats();
 
 
 	this.scene = this.init_scene();
@@ -52,8 +54,6 @@ Game.prototype.init = function() {
 	requestAnimationFrame(this.render.bind(this));
 
 	window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
-
-	this.scene.simulate();
 };
 
 Game.prototype.init_renderer = function() {
@@ -76,6 +76,16 @@ Game.prototype.onWindowResize = function() {
 	this.renderer.setSize( window.innerWidth, window.innerHeight );
 	this.hud.width = window.innerWidth;
 	this.hud.height = window.innerHeight;
+};
+
+Game.prototype.init_stats = function() {
+	this.render_stats = new Stats();
+	this.render_stats.domElement.style.position = 'absolute';
+	this.render_stats.domElement.style.top = '1px';
+	this.render_stats.domElement.style.zIndex = 100;
+
+	this.render_stats.domElement.hidden = true;
+	document.body.appendChild(this.render_stats.domElement);
 };
 
 Game.prototype.init_hud = function() {
@@ -218,6 +228,7 @@ Game.prototype.render = function() {
 
 	this.scene.simulate();
 	this.renderer.render( this.scene, this.camera );
+	this.render_stats.update();
 	requestAnimationFrame( this.render.bind(this) );
 };
 
@@ -273,6 +284,10 @@ Game.prototype.handle_keys = function() {
 			this.game_started = true;
 			this.message = "";
 		}
+	}
+
+	if (this.keyboard.pressed("1")) {
+		this.render_stats.domElement.hidden = false;
 	}
 };
 
