@@ -250,7 +250,7 @@ Game.prototype.get_simple_time = function() {
 };
 
 Game.prototype.handle_fuel_alert = function() {
-	if (this.lander.fuel < 150) {
+	if (this.lander.fuel < 150 && !this.landed) {
 		startBeeping();
 		this.message = "LOW FUEL ALERT";
 	}
